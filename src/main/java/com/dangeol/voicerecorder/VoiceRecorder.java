@@ -2,15 +2,13 @@ package com.dangeol.voicerecorder;
 
 import com.dangeol.voicerecorder.services.SchedulerService;
 import com.dangeol.voicerecorder.utils.CreateDirFilesUtil;
-import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -30,6 +28,7 @@ public class VoiceRecorder extends ListenerAdapter {
 
         EnumSet<GatewayIntent> intents = EnumSet.of(
                 GatewayIntent.GUILD_MESSAGES,
+                GatewayIntent.MESSAGE_CONTENT,
                 GatewayIntent.GUILD_VOICE_STATES
         );
 
@@ -44,19 +43,24 @@ public class VoiceRecorder extends ListenerAdapter {
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
+
         logger.info("Bot is online!");
     }
 
     @Override
-    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+    public void onMessageReceived(MessageReceivedEvent event) {
         Message message = event.getMessage();
         User author = message.getAuthor();
-        String content = message.getContentRaw();
+        String content = message.getContentDisplay();
         Guild guild = event.getGuild();
 
-        // Ignore message if bot
         if (author.isBot())
             return;
+
+        if (!event.isFromGuild())
+        {
+            return;
+        }
 
         if (content.startsWith("!record ")) {
             String arg = content.substring("!record ".length());

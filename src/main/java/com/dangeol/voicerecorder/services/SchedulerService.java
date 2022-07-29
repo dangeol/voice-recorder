@@ -3,7 +3,7 @@ package com.dangeol.voicerecorder.services;
 import com.dangeol.voicerecorder.Commands;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class SchedulerService {
      * Stop the recording when its time limit is reached
      * @param event
      */
-    public void scheduleStopEvent(GuildMessageReceivedEvent event) {
+    public void scheduleStopEvent(MessageReceivedEvent event) {
         Runnable taskStopAfterMaxTime = () -> {
             if (event.getGuild().getAudioManager().isConnected()) {
                 commands.onStopCommand(event);

@@ -2,8 +2,7 @@
 
 ## Introduction
 The Bot is deployed in a Docker container on a Virtual Machine (VM) instance using the following Google Cloud Platform hardware resources:
-F1-micro, “always free tier”,
-Micro machine type with 0.2 vCPU and 0.6 GB of memory, backed by a shared physical core.
+Machine type e2-micro, “always free tier”.
 
 ## Troubleshooting
 
@@ -47,7 +46,7 @@ Start a Docker container that is driven from the image, and mount the volume “
 The latest image is (November 2020): `5baa766a123f`
 
 ## Local development
-The following JAR-file needs to be in your JAVA class path: `log4j-core-2.13.3.jar`
+The following JAR-file needs to be in your JAVA class path: `log4j-core-2.17.2.jar`
 
 ## VM configuration
 The configuration of the VM should persist even after a shut down. Some configuration details are outlined below.

@@ -7,7 +7,7 @@ import com.google.api.client.googleapis.media.MediaHttpUploader;
 import com.google.api.client.http.InputStreamContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.FileList;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +30,13 @@ public class UploadUtil {
 
     /**
      * Upload the mp3 to Google Drive
-     * @param textChannel
+     * @param messageChannel
      * @throws IOException
      */
-    public void uploadMp3(TextChannel textChannel) throws IOException {
+    public void uploadMp3(MessageChannel messageChannel) throws IOException {
         String originalFileName = getFileName();
         // Construct final filename for the uploaded file:
-        String fileName = originalFileName.substring(0, 14)+"_"+textChannel.getName()+".mp3";
+        String fileName = originalFileName.substring(0, 14)+"_"+messageChannel.getName()+".mp3";
         File mp3File = new File("mp3/"+originalFileName);
 
         try (FileInputStream fileInputStream = new FileInputStream(mp3File);
@@ -55,7 +55,7 @@ public class UploadUtil {
             request.execute();
             if (uploader.getProgress() == 1.0) {
                 String link = getLink(drive, fileName);
-                messages.onUploadComplete(textChannel, link);
+                messages.onUploadComplete(messageChannel, link);
                 try {
                     Files.deleteIfExists(Paths.get("mp3/"+originalFileName));
                 } catch(IOException e) {

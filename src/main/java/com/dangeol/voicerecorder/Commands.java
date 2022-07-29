@@ -5,7 +5,7 @@ import com.dangeol.voicerecorder.services.SchedulerService;
 import com.dangeol.voicerecorder.utils.MessageUtil;
 import com.dangeol.voicerecorder.utils.UploadUtil;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Commands {
 
-    private static final Logger logger = LoggerFactory.getLogger(VoiceRecorder.class);
+    private static final Logger logger = LoggerFactory.getLogger(com.dangeol.voicerecorder.VoiceRecorder.class);
     private static final MessageUtil messages = new MessageUtil();
     private static final SchedulerService stopSchedulerService = new SchedulerService();
 
@@ -25,10 +25,10 @@ public class Commands {
      * Handle command without arguments.
      * @param event: The event for this command
      */
-    public void onRecordCommand(GuildMessageReceivedEvent event) throws Exception {
+    public void onRecordCommand(MessageReceivedEvent event) throws Exception {
         Member member = event.getMember();
         GuildVoiceState voiceState = member.getVoiceState();
-        VoiceChannel channel = voiceState.getChannel();
+        AudioChannel channel = voiceState.getChannel();
         if (channel == null) {
             messages.onUnknownChannelMessage(event.getChannel(), "your voice channel");
             return;
@@ -42,9 +42,9 @@ public class Commands {
      * @param guild: The guild where its happening
      * @param arg: The input argument
      */
-    public void onRecordCommand(GuildMessageReceivedEvent event, Guild guild, String arg) throws Exception {
+    public void onRecordCommand(MessageReceivedEvent event, Guild guild, String arg) throws Exception {
         boolean isNumber = arg.matches("\\d+"); // This is a regular expression that ensures the input consists of digits
-        VoiceChannel channel = null;
+        AudioChannel channel = null;
         if (isNumber) {
             channel = guild.getVoiceChannelById(arg);
         } if (channel == null) {
@@ -53,9 +53,9 @@ public class Commands {
                 channel = channels.get(0);
         }
 
-        TextChannel textChannel = event.getChannel();
+        MessageChannel messageChannel = event.getChannel();
         if (channel == null) {
-            messages.onUnknownChannelMessage(textChannel, arg);
+            messages.onUnknownChannelMessage(messageChannel, arg);
             return;
         }
         connectTo(channel, event);
@@ -63,18 +63,18 @@ public class Commands {
 
     /**
      * Connect to requested channel and start audio handler
-     * @param voiceChannel: The voiceChannel to connect to
+     * @param audioChannel: The audioChannel to connect to
      * @param event: GuildMessageReceivedEvent
      */
-    public void connectTo(VoiceChannel voiceChannel, GuildMessageReceivedEvent event) throws Exception {
-        Guild guild = voiceChannel.getGuild();
-        TextChannel textChannel = event.getChannel();
+    public void connectTo(AudioChannel audioChannel, MessageReceivedEvent event) throws Exception {
+        Guild guild = audioChannel.getGuild();
+        MessageChannel messageChannel = event.getChannel();
         AudioManager audioManager = guild.getAudioManager();
         if (audioManager.isConnected()) {
-            messages.onAlreadyConnectedMessage(textChannel, voiceChannel.getName());
+            messages.onAlreadyConnectedMessage(messageChannel, audioChannel.getName());
             return;
         }
-        messages.disclaimerConsentMessage(voiceChannel, textChannel);
+        messages.disclaimerConsentMessage(audioChannel, messageChannel);
         try {
             TimeUnit.SECONDS.sleep(10);
         } catch (InterruptedException ie) {
@@ -87,8 +87,8 @@ public class Commands {
         AudioHandler handler = new AudioHandler();
         audioManager.setSendingHandler(handler);
         audioManager.setReceivingHandler(handler);
-        audioManager.openAudioConnection(voiceChannel);
-        messages.onConnectionMessage(voiceChannel, textChannel);
+        audioManager.openAudioConnection(audioChannel);
+        messages.onConnectionMessage(audioChannel, messageChannel);
         stopSchedulerService.scheduleStopEvent(event);
     }
 
@@ -96,8 +96,8 @@ public class Commands {
      * Disconnect from channel and close the audio connection
      * @param event
      */
-    public void onStopCommand(GuildMessageReceivedEvent event) {
-        VoiceChannel connectedChannel = event.getGuild().getSelfMember().getVoiceState().getChannel();
+    public void onStopCommand(MessageReceivedEvent event) {
+        AudioChannel connectedChannel = event.getGuild().getSelfMember().getVoiceState().getChannel();
         if(connectedChannel == null) {
             messages.onNotRecordingMessage(event.getChannel());
             return;
@@ -119,7 +119,7 @@ public class Commands {
      * @param event
      * @param prefix
      */
-    public void changeBotNickName(GuildMessageReceivedEvent event, String prefix) {
+    public void changeBotNickName(MessageReceivedEvent event, String prefix) {
         Member bot = event.getGuild().getSelfMember();
         String botName = "VoiceRecorder";
         try {

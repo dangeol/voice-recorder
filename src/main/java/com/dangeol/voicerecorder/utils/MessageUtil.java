@@ -2,37 +2,36 @@ package com.dangeol.voicerecorder.utils;
 
 import com.dangeol.voicerecorder.VoiceRecorder;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.AudioChannel;
 
 public class MessageUtil {
 
     /**
      * Consent information message, trying to be compliant with the GDPR
-     * @param voiceChannel: The voice channel we are connected to
-     * @param textChannel: The message channel (text channel abstraction) to send information to
+     * @param audioChannel: The voice channel we are connected to
+     * @param messageChannel: The message channel (text channel abstraction) to send information to
      */
-    public void disclaimerConsentMessage(VoiceChannel voiceChannel, TextChannel textChannel) throws Exception {
+    public void disclaimerConsentMessage(AudioChannel audioChannel, MessageChannel messageChannel) throws Exception {
         String email = VoiceRecorder.getEnvItem("contact_email");
-        String msg = "```fix" + "\n" + "Recording of " + voiceChannel.getName() +
+        String msg = "```fix" + "\n" + "Recording of " + audioChannel.getName() +
                 " will start in 10 seconds."
                 + "\n" + "By unmuting his microphone, the participant consents to an audio tape being made of this " +
                 "session and to this recording being uploaded to the internet. The purpose of this tape is sharing " +
                 "the Dhamma and information concerning Sirimangalo International with interested persons who can't " +
                 "attend the meeting. Any participant may initiate the deletion of a recording at any time by " +
                 "writing an E-Mail to " + email + "." + "\n" +  "```";
-        textChannel.sendMessage(msg).queue();
+        messageChannel.sendMessage(msg).queue();
     }
 
     /**
      * Inform user about successful connection.
-     * @param voiceChannel: The voice channel we are connected to
-     * @param textChannel: The message channel (text channel abstraction) to send information to
+     * @param audioChannel: The voice channel we are connected to
+     * @param messageChannel: The message channel (text channel abstraction) to send information to
      */
-    public void onConnectionMessage(VoiceChannel voiceChannel, TextChannel textChannel) {
+    public void onConnectionMessage(AudioChannel audioChannel, MessageChannel messageChannel) {
         String msg = ":red_circle: **Audio is being recorded on " +
-                voiceChannel.getName() + "**";
-        textChannel.sendMessage(msg).queue();
+                audioChannel.getName() + "**";
+        messageChannel.sendMessage(msg).queue();
     }
 
     /**
@@ -70,7 +69,7 @@ public class MessageUtil {
      */
     public void onRecordNotWorking(MessageChannel channel) {
         String msg = ":no_entry_sign: Please use the following command:" + "\n" +
-                "`!record [VoiceChannel name]`, e.g.:" + "\n" +
+                "`!record [AudioChannel name]`, e.g.:" + "\n" +
                 "`!record dhamma_study_group`";
         channel.sendMessage(msg).queue();
     }
